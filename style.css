@@ -1,0 +1,159 @@
+/* =========================
+   GLOBAL
+========================= */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: #2e3b5b;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+
+  /* 🔑 REQUIRED for mobile drag */
+  touch-action: none;
+}
+
+/* =========================
+   GAME WRAPPER
+========================= */
+
+#game {
+  width: fit-content;
+  margin: 0 auto;
+}
+
+/* =========================
+   GRID WRAPPER
+========================= */
+
+#grid-wrapper {
+  background: #1c2440;
+  padding: 10px;
+  border-radius: 8px;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+/* =========================
+   GRID
+========================= */
+
+#grid {
+  display: grid;
+  grid-template-columns: repeat(8, 40px);
+  gap: 4px;
+}
+
+/* =========================
+   CELLS
+========================= */
+
+.cell {
+  width: 40px;
+  height: 40px;
+  background: #2f3b63;
+  border-radius: 4px;
+  transition: background 0.12s ease;
+}
+
+.cell.occupied {
+  background: #4da3ff;
+}
+
+/* =========================
+   GHOST PREVIEW
+========================= */
+
+.cell.ghost {
+  background: rgba(255, 159, 67, 0.35);
+}
+
+/* =========================
+   TRAY
+========================= */
+
+#tray {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  min-height: 140px;
+}
+
+/* =========================
+   PIECES
+========================= */
+
+.piece {
+  position: relative; /* stays fixed in tray */
+  cursor: grab;
+  user-select: none;
+}
+
+/* 🔑 CRITICAL: lifted piece floats cleanly */
+.piece.dragging {
+  position: fixed;        /* NO layout shift */
+  z-index: 1000;
+  pointer-events: none;   /* avoids collision */
+}
+
+/* =========================
+   BLOCKS
+========================= */
+
+.block {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: #ff9f43;
+  border-radius: 6px;
+}
+
+/* =========================
+   GAME OVER OVERLAY
+========================= */
+
+#game-over-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+#game-over-overlay.hidden {
+  display: none;
+}
+
+.game-over-box {
+  background: #1c2440;
+  padding: 40px 50px;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  text-align: center;
+}
+
+.game-over-box h1 {
+  margin: 0 0 10px;
+  font-size: 36px;
+}
+
+.game-over-box p {
+  margin-bottom: 20px;
+  opacity: 0.85;
+}
+
+.game-over-box button {
+  padding: 10px 22px;
+  font-size: 16px;
+  cursor: pointer;
+}
