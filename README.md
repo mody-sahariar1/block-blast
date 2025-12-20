@@ -11,7 +11,9 @@ A Block Blast–style puzzle game built using **HTML, CSS, and Vanilla JavaScrip
 - Desktop + Mobile support
 
 ## ▶️ Play the Game
-👉 https://mody-sahariar1.github.io/YOUR-REPO-NAME/
+👉 https://mody-sahariar1.github.io/
+
+
 
 ## 🛠️ Tech
 - HTML
