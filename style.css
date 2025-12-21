@@ -4,6 +4,7 @@
 
 * {
   box-sizing: border-box;
+  touch-action: none;
 }
 
 body {
@@ -14,17 +15,32 @@ body {
   margin: 0;
   padding: 0;
 
-  /* 🔑 REQUIRED for mobile drag */
-  touch-action: none;
+  /* iOS safe-area support */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* =========================
-   GAME WRAPPER
+   SCALE WRAPPER (CRITICAL)
+========================= */
+
+#game-scale-wrapper {
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+}
+
+/* =========================
+   GAME
 ========================= */
 
 #game {
-  width: fit-content;
-  margin: 0 auto;
+  transform-origin: center center;
 }
 
 /* =========================
@@ -58,16 +74,11 @@ body {
   height: 40px;
   background: #2f3b63;
   border-radius: 4px;
-  transition: background 0.12s ease;
 }
 
 .cell.occupied {
   background: #4da3ff;
 }
-
-/* =========================
-   GHOST PREVIEW
-========================= */
 
 .cell.ghost {
   background: rgba(255, 159, 67, 0.35);
@@ -83,7 +94,6 @@ body {
   grid-template-columns: repeat(3, auto);
   gap: 20px;
   justify-content: center;
-  align-items: center;
   min-height: 140px;
 }
 
@@ -92,16 +102,15 @@ body {
 ========================= */
 
 .piece {
-  position: relative; /* stays fixed in tray */
+  position: relative;
   cursor: grab;
   user-select: none;
 }
 
-/* 🔑 CRITICAL: lifted piece floats cleanly */
 .piece.dragging {
-  position: fixed;        /* NO layout shift */
+  position: fixed;
   z-index: 1000;
-  pointer-events: none;   /* avoids collision */
+  pointer-events: none;
 }
 
 /* =========================
@@ -156,4 +165,26 @@ body {
   padding: 10px 22px;
   font-size: 16px;
   cursor: pointer;
+}
+
+/* =========================
+   RESPONSIVE SCALING
+========================= */
+
+@media (max-width: 480px) {
+  #game {
+    transform: scale(0.85);
+  }
+}
+
+@media (max-width: 390px) {
+  #game {
+    transform: scale(0.75);
+  }
+}
+
+@media (max-width: 360px) {
+  #game {
+    transform: scale(0.7);
+  }
 }
