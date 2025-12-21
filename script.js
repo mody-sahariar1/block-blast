@@ -348,7 +348,7 @@ document.addEventListener("pointermove", e => {
 document.addEventListener("pointerup", () => {
   if (!dragging) return;
 
-  dragging = false;
+  jsdragging = false;
   dragClone.remove();
 
   if (currentSnap && !gameOver) {
