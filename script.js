@@ -15,7 +15,7 @@ let cells = [];
 let gridState = Array(gridSize * gridSize).fill(0);
 let gameOver = false;
 
-/* ================= SCORE (ORIGINAL BASE LOGIC) ================= */
+/* ================= SCORE (BASE) ================= */
 
 let score = 0;
 
@@ -29,7 +29,7 @@ function addScore(linesCleared) {
 let combo = 0;
 let bestScore = Math.floor(Number(localStorage.getItem("bestScore")) || 0);
 
-/* ---- SCORE BREAKDOWN (JS ONLY, NO LAYOUT EFFECT) ---- */
+/* ---- SCORE BREAKDOWN ---- */
 
 let breakdownEl = null;
 let breakdownTimeout = null;
@@ -63,10 +63,10 @@ function showScoreBreakdown(base, bonus) {
 }
 
 /*
-  COMBO RULE (LOCKED):
-  - Combo increments from FIRST clear
-  - Bonus applies from SECOND consecutive clear
-  - Bonus = (combo - 1) * 50 * min(linesCleared, 2)
+COMBO RULE:
+- Combo increments from FIRST clear
+- Bonus applies from SECOND consecutive clear
+- Bonus = (combo - 1) * 50 * min(linesCleared, 2)
 */
 
 function observeComboAndBest(linesCleared) {
@@ -345,7 +345,7 @@ document.addEventListener("pointermove", e => {
 document.addEventListener("pointerup", () => {
   if (!dragging) return;
 
-  dragging = false; // ✅ FIXED HERE
+  dragging = false;   // ✅ FIXED
   dragClone.remove();
 
   if (currentSnap && !gameOver) {

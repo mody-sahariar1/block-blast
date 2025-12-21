@@ -12,7 +12,7 @@ body {
   padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
 }
 
-/* SCOREBOARD (ORIGINAL — UNCHANGED) */
+/* SCOREBOARD (LOCKED HEIGHT, NO REFLOW) */
 #scoreboard {
   margin: 12px 0;
   font-size: 18px;
@@ -26,25 +26,7 @@ body {
   visibility: hidden;
 }
 
-/* ✅ SCORE BREAKDOWN (FIXED OVERLAY — NO LAYOUT EFFECT) */
-#score-breakdown {
-  position: fixed;
-  top: 120px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 14px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
-  white-space: nowrap;
-  z-index: 999;
-}
-
-#score-breakdown.visible {
-  opacity: 1;
-}
-
-/* SCALE WRAPPER (UNCHANGED) */
+/* SCALE WRAPPER */
 #game-scale-wrapper {
   width: 100vw;
   height: 100vh;
@@ -140,6 +122,12 @@ body {
 }
 
 /* RESPONSIVE SCALE */
-@media (max-width: 480px) { #game { transform: scale(0.85); } }
-@media (max-width: 390px) { #game { transform: scale(0.75); } }
-@media (max-width: 360px) { #game { transform: scale(0.7); } }
+@media (max-width: 480px) {
+  #game { transform: scale(0.85); }
+}
+@media (max-width: 390px) {
+  #game { transform: scale(0.75); }
+}
+@media (max-width: 360px) {
+  #game { transform: scale(0.7); }
+}
