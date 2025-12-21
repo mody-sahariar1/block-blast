@@ -5,9 +5,6 @@ const restartBtn = document.getElementById("restart");
 const overlay = document.getElementById("game-over-overlay");
 const restartOverlayBtn = document.getElementById("restart-overlay-btn");
 
-const CELL_SIZE = 44;
-const SNAP_TOLERANCE = CELL_SIZE * 0.8;
-
 let cells = [];
 let gridState = Array(gridSize * gridSize).fill(0);
 let gameOver = false;
@@ -56,11 +53,22 @@ function createGrid() {
   }
 }
 
+/* ---------- DYNAMIC CELL SIZE (MOBILE FIX) ---------- */
+
+function getCellSize() {
+  if (!cells.length) return 44;
+  const rect = cells[0].getBoundingClientRect();
+  return rect.width + 4; // includes grid gap
+}
+
+function getSnapTolerance() {
+  return getCellSize() * 0.9;
+}
+
 /* ---------- TRAY ---------- */
 
 function spawnTrayPieces() {
   tray.innerHTML = "";
-
   for (let i = 0; i < 3; i++) {
     const key = SHAPE_KEYS[Math.floor(Math.random() * SHAPE_KEYS.length)];
     const piece = document.createElement("div");
@@ -99,13 +107,8 @@ function canPlace(shape, row, col) {
   return shape.every(([dx, dy]) => {
     const r = row + dy;
     const c = col + dx;
-    return (
-      r >= 0 &&
-      c >= 0 &&
-      r < gridSize &&
-      c < gridSize &&
-      !gridState[r * gridSize + c]
-    );
+    return r >= 0 && c >= 0 && r < gridSize && c < gridSize &&
+           !gridState[r * gridSize + c];
   });
 }
 
@@ -116,43 +119,23 @@ function placeShape(shape, row, col) {
     cells[i].classList.add("occupied");
   });
 
-  clearCompletedLines(); // ✅ BLASTING ADDED
+  clearLines();
 }
 
-/* ---------- BLASTING (ROWS & COLUMNS ONLY) ---------- */
+/* ---------- BLASTING (ROWS + COLUMNS) ---------- */
 
-function clearCompletedLines() {
+function clearLines() {
   const toClear = new Set();
 
-  // rows
   for (let r = 0; r < gridSize; r++) {
-    let full = true;
-    for (let c = 0; c < gridSize; c++) {
-      if (!gridState[r * gridSize + c]) {
-        full = false;
-        break;
-      }
-    }
-    if (full) {
-      for (let c = 0; c < gridSize; c++) {
-        toClear.add(r * gridSize + c);
-      }
+    if ([...Array(gridSize)].every((_, c) => gridState[r*gridSize + c])) {
+      for (let c = 0; c < gridSize; c++) toClear.add(r*gridSize + c);
     }
   }
 
-  // columns
   for (let c = 0; c < gridSize; c++) {
-    let full = true;
-    for (let r = 0; r < gridSize; r++) {
-      if (!gridState[r * gridSize + c]) {
-        full = false;
-        break;
-      }
-    }
-    if (full) {
-      for (let r = 0; r < gridSize; r++) {
-        toClear.add(r * gridSize + c);
-      }
+    if ([...Array(gridSize)].every((_, r) => gridState[r*gridSize + c])) {
+      for (let r = 0; r < gridSize; r++) toClear.add(r*gridSize + c);
     }
   }
 
@@ -170,11 +153,9 @@ function isGameOver() {
 
   return !pieces.some(p => {
     const shape = SHAPES[p.dataset.shape];
-    for (let r = 0; r < gridSize; r++) {
-      for (let c = 0; c < gridSize; c++) {
+    for (let r = 0; r < gridSize; r++)
+      for (let c = 0; c < gridSize; c++)
         if (canPlace(shape, r, c)) return true;
-      }
-    }
     return false;
   });
 }
@@ -205,12 +186,14 @@ function showGhost(shape, row, col) {
 function findSnapPosition(x, y, shape) {
   let best = null;
   let bestDist = Infinity;
+  const cellSize = getCellSize();
+  const tolerance = getSnapTolerance();
 
   for (let r = 0; r < gridSize; r++) {
     for (let c = 0; c < gridSize; c++) {
       if (!canPlace(shape, r, c)) continue;
-      const d = Math.hypot(c * CELL_SIZE - x, r * CELL_SIZE - y);
-      if (d < SNAP_TOLERANCE && d < bestDist) {
+      const d = Math.hypot(c * cellSize - x, r * cellSize - y);
+      if (d < tolerance && d < bestDist) {
         bestDist = d;
         best = { row: r, col: c };
       }
@@ -219,7 +202,7 @@ function findSnapPosition(x, y, shape) {
   return best;
 }
 
-/* ---------- DRAG ---------- */
+/* ---------- DRAG (CLONE-BASED, STABLE) ---------- */
 
 function setupDrag(piece) {
   piece.addEventListener("pointerdown", e => {
