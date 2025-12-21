@@ -2,21 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+
+  <!-- 🔑 CRITICAL: Mobile viewport fix -->
+  <meta
+    name="viewport"
+    content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no"
+  />
+
   <title>Block Blast – Milestone 1</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
   <h2>Block Blast – Milestone 1</h2>
   <button id="restart">Restart</button>
 
-  <div id="game">
+  <!-- 🔑 SCALE WRAPPER (DO NOT REMOVE) -->
+  <div id="game-scale-wrapper">
 
-    <div id="grid-wrapper">
-      <div id="grid"></div>
+    <div id="game">
+
+      <!-- GRID -->
+      <div id="grid-wrapper">
+        <div id="grid"></div>
+      </div>
+
+      <!-- TRAY -->
+      <div id="tray"></div>
+
     </div>
-
-    <div id="tray"></div>
 
   </div>
 
