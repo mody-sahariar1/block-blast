@@ -60,6 +60,7 @@ function createGrid() {
 
 function spawnTrayPieces() {
   tray.innerHTML = "";
+
   for (let i = 0; i < 3; i++) {
     const key = SHAPE_KEYS[Math.floor(Math.random() * SHAPE_KEYS.length)];
     const piece = document.createElement("div");
@@ -98,8 +99,13 @@ function canPlace(shape, row, col) {
   return shape.every(([dx, dy]) => {
     const r = row + dy;
     const c = col + dx;
-    return r >= 0 && c >= 0 && r < gridSize && c < gridSize &&
-           !gridState[r * gridSize + c];
+    return (
+      r >= 0 &&
+      c >= 0 &&
+      r < gridSize &&
+      c < gridSize &&
+      !gridState[r * gridSize + c]
+    );
   });
 }
 
@@ -108,6 +114,51 @@ function placeShape(shape, row, col) {
     const i = (row + dy) * gridSize + (col + dx);
     gridState[i] = 1;
     cells[i].classList.add("occupied");
+  });
+
+  clearCompletedLines(); // ✅ BLASTING ADDED
+}
+
+/* ---------- BLASTING (ROWS & COLUMNS ONLY) ---------- */
+
+function clearCompletedLines() {
+  const toClear = new Set();
+
+  // rows
+  for (let r = 0; r < gridSize; r++) {
+    let full = true;
+    for (let c = 0; c < gridSize; c++) {
+      if (!gridState[r * gridSize + c]) {
+        full = false;
+        break;
+      }
+    }
+    if (full) {
+      for (let c = 0; c < gridSize; c++) {
+        toClear.add(r * gridSize + c);
+      }
+    }
+  }
+
+  // columns
+  for (let c = 0; c < gridSize; c++) {
+    let full = true;
+    for (let r = 0; r < gridSize; r++) {
+      if (!gridState[r * gridSize + c]) {
+        full = false;
+        break;
+      }
+    }
+    if (full) {
+      for (let r = 0; r < gridSize; r++) {
+        toClear.add(r * gridSize + c);
+      }
+    }
+  }
+
+  toClear.forEach(i => {
+    gridState[i] = 0;
+    cells[i].classList.remove("occupied");
   });
 }
 
@@ -119,9 +170,11 @@ function isGameOver() {
 
   return !pieces.some(p => {
     const shape = SHAPES[p.dataset.shape];
-    for (let r = 0; r < gridSize; r++)
-      for (let c = 0; c < gridSize; c++)
+    for (let r = 0; r < gridSize; r++) {
+      for (let c = 0; c < gridSize; c++) {
         if (canPlace(shape, r, c)) return true;
+      }
+    }
     return false;
   });
 }
@@ -166,7 +219,7 @@ function findSnapPosition(x, y, shape) {
   return best;
 }
 
-/* ---------- DRAG (CLONE-BASED, FINAL) ---------- */
+/* ---------- DRAG ---------- */
 
 function setupDrag(piece) {
   piece.addEventListener("pointerdown", e => {
