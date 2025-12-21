@@ -291,7 +291,7 @@ function findSnapPosition(x, y, shape) {
   return best;
 }
 
-/* ================= DRAG ================= */
+/* ================= DRAG (MOBILE SAFE) ================= */
 
 let dragging = false;
 let dragClone = null;
@@ -300,6 +300,17 @@ let offsetX = 0;
 let offsetY = 0;
 let currentSnap = null;
 let sourcePiece = null;
+let frozenGridRect = null;
+
+function endDragSafely() {
+  dragging = false;
+  if (dragClone) dragClone.remove();
+  clearGhost();
+  currentSnap = null;
+  dragClone = null;
+  sourcePiece = null;
+  frozenGridRect = null;
+}
 
 function setupDrag(piece) {
   piece.addEventListener("pointerdown", e => {
@@ -312,6 +323,8 @@ function setupDrag(piece) {
     const rect = piece.getBoundingClientRect();
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
+
+    frozenGridRect = grid.getBoundingClientRect();
 
     dragClone = piece.cloneNode(true);
     dragClone.classList.add("dragging");
@@ -328,7 +341,7 @@ document.addEventListener("pointermove", e => {
   dragClone.style.left = e.clientX - offsetX + "px";
   dragClone.style.top = e.clientY - offsetY + "px";
 
-  const gridRect = grid.getBoundingClientRect();
+  const gridRect = frozenGridRect;
   const x = e.clientX - gridRect.left - offsetX;
   const y = e.clientY - gridRect.top - offsetY;
 
@@ -345,9 +358,6 @@ document.addEventListener("pointermove", e => {
 document.addEventListener("pointerup", () => {
   if (!dragging) return;
 
-  dragging = false;   // ✅ FIXED
-  dragClone.remove();
-
   if (currentSnap && !gameOver) {
     placeShape(activeShape, currentSnap.row, currentSnap.col);
     sourcePiece.remove();
@@ -356,10 +366,12 @@ document.addEventListener("pointerup", () => {
     if (isGameOver()) triggerGameOver();
   }
 
-  clearGhost();
-  currentSnap = null;
-  dragClone = null;
-  sourcePiece = null;
+  endDragSafely();
+});
+
+document.addEventListener("pointercancel", () => {
+  if (!dragging) return;
+  endDragSafely();
 });
 
 /* ================= RESET ================= */
