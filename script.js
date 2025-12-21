@@ -15,7 +15,7 @@ let cells = [];
 let gridState = Array(gridSize * gridSize).fill(0);
 let gameOver = false;
 
-/* ================= SCORE (BASE) ================= */
+/* ================= SCORE ================= */
 
 let score = 0;
 
@@ -29,58 +29,14 @@ function addScore(linesCleared) {
 let combo = 0;
 let bestScore = Math.floor(Number(localStorage.getItem("bestScore")) || 0);
 
-/* ---- SCORE BREAKDOWN ---- */
-
-let breakdownEl = null;
-let breakdownTimeout = null;
-
-function showScoreBreakdown(base, bonus) {
-  if (!breakdownEl) {
-    breakdownEl = document.createElement("div");
-    breakdownEl.style.position = "fixed";
-    breakdownEl.style.top = "120px";
-    breakdownEl.style.left = "50%";
-    breakdownEl.style.transform = "translateX(-50%)";
-    breakdownEl.style.fontSize = "14px";
-    breakdownEl.style.color = "white";
-    breakdownEl.style.opacity = "0";
-    breakdownEl.style.pointerEvents = "none";
-    breakdownEl.style.transition = "opacity 0.25s ease";
-    breakdownEl.style.zIndex = "9999";
-    document.body.appendChild(breakdownEl);
-  }
-
-  let text = `+${base} Base`;
-  if (bonus > 0) text += ` • +${bonus} Combo`;
-
-  breakdownEl.textContent = text;
-  breakdownEl.style.opacity = "1";
-
-  clearTimeout(breakdownTimeout);
-  breakdownTimeout = setTimeout(() => {
-    breakdownEl.style.opacity = "0";
-  }, 800);
-}
-
-/*
-COMBO RULE:
-- Combo increments from FIRST clear
-- Bonus applies from SECOND consecutive clear
-- Bonus = (combo - 1) * 50 * min(linesCleared, 2)
-*/
-
 function observeComboAndBest(linesCleared) {
-  let basePoints = 0;
-  let bonusPoints = 0;
+  let bonus = 0;
 
   if (linesCleared > 0) {
-    basePoints = linesCleared * 100;
     combo++;
-
     if (combo >= 2) {
-      const cappedLines = Math.min(linesCleared, 2);
-      bonusPoints = (combo - 1) * 50 * cappedLines;
-      score += bonusPoints;
+      bonus = (combo - 1) * 50 * Math.min(linesCleared, 2);
+      score += bonus;
     }
   } else {
     combo = 0;
@@ -96,10 +52,6 @@ function observeComboAndBest(linesCleared) {
       comboEl.style.visibility = "visible";
     } else {
       comboEl.style.visibility = "hidden";
-    }
-
-    if (linesCleared > 0) {
-      showScoreBreakdown(basePoints, bonusPoints);
     }
 
     if (score > bestScore) {
@@ -291,7 +243,7 @@ function findSnapPosition(x, y, shape) {
   return best;
 }
 
-/* ================= DRAG (MOBILE SAFE) ================= */
+/* ================= DRAG (DESKTOP UNCHANGED, MOBILE FIXED) ================= */
 
 let dragging = false;
 let dragClone = null;
@@ -300,17 +252,8 @@ let offsetX = 0;
 let offsetY = 0;
 let currentSnap = null;
 let sourcePiece = null;
-let frozenGridRect = null;
-
-function endDragSafely() {
-  dragging = false;
-  if (dragClone) dragClone.remove();
-  clearGhost();
-  currentSnap = null;
-  dragClone = null;
-  sourcePiece = null;
-  frozenGridRect = null;
-}
+let gridRect = null;
+let visualScale = 1;
 
 function setupDrag(piece) {
   piece.addEventListener("pointerdown", e => {
@@ -324,7 +267,15 @@ function setupDrag(piece) {
     offsetX = e.clientX - rect.left;
     offsetY = e.clientY - rect.top;
 
-    frozenGridRect = grid.getBoundingClientRect();
+    gridRect = grid.getBoundingClientRect();
+
+    // 🔒 MOBILE-ONLY SCALE NORMALIZATION
+    if (e.pointerType === "touch") {
+      const gameRect = document.getElementById("game").getBoundingClientRect();
+      visualScale = gameRect.width / document.getElementById("game").offsetWidth;
+    } else {
+      visualScale = 1; // DESKTOP: unchanged
+    }
 
     dragClone = piece.cloneNode(true);
     dragClone.classList.add("dragging");
@@ -341,9 +292,9 @@ document.addEventListener("pointermove", e => {
   dragClone.style.left = e.clientX - offsetX + "px";
   dragClone.style.top = e.clientY - offsetY + "px";
 
-  const gridRect = frozenGridRect;
-  const x = e.clientX - gridRect.left - offsetX;
-  const y = e.clientY - gridRect.top - offsetY;
+  // 🔒 Normalize input ONLY on mobile
+  const x = (e.clientX - gridRect.left - offsetX) / visualScale;
+  const y = (e.clientY - gridRect.top - offsetY) / visualScale;
 
   const snap = findSnapPosition(x, y, activeShape);
   if (snap) {
@@ -366,12 +317,19 @@ document.addEventListener("pointerup", () => {
     if (isGameOver()) triggerGameOver();
   }
 
-  endDragSafely();
+  dragging = false;
+  if (dragClone) dragClone.remove();
+  clearGhost();
+  currentSnap = null;
+  dragClone = null;
+  sourcePiece = null;
 });
 
 document.addEventListener("pointercancel", () => {
-  if (!dragging) return;
-  endDragSafely();
+  dragging = false;
+  if (dragClone) dragClone.remove();
+  clearGhost();
+  currentSnap = null;
 });
 
 /* ================= RESET ================= */
@@ -389,10 +347,10 @@ function resetGame() {
   spawnTrayPieces();
 }
 
+/* ================= INIT ================= */
+
 restartBtn.onclick = resetGame;
 restartOverlayBtn.onclick = resetGame;
-
-/* ================= INIT ================= */
 
 createGrid();
 spawnTrayPieces();
