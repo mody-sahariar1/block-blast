@@ -29,6 +29,39 @@ function addScore(linesCleared) {
 let combo = 0;
 let bestScore = Math.floor(Number(localStorage.getItem("bestScore")) || 0);
 
+/* ---- GRID-LOCKED SCORE BREAKDOWN (OBSERVER ONLY) ---- */
+
+let gridBreakdownEl = null;
+let gridBreakdownTimer = null;
+
+function showGridScoreBreakdown(text) {
+  if (!gridBreakdownEl) {
+    gridBreakdownEl = document.createElement("div");
+    gridBreakdownEl.style.position = "fixed";
+    gridBreakdownEl.style.fontSize = "14px";
+    gridBreakdownEl.style.fontWeight = "bold";
+    gridBreakdownEl.style.color = "white";
+    gridBreakdownEl.style.pointerEvents = "none";
+    gridBreakdownEl.style.opacity = "0";
+    gridBreakdownEl.style.transition = "opacity 0.2s ease";
+    gridBreakdownEl.style.zIndex = "9999";
+    document.body.appendChild(gridBreakdownEl);
+  }
+
+  const gridRect = grid.getBoundingClientRect();
+  gridBreakdownEl.style.left = `${gridRect.left + gridRect.width / 2}px`;
+  gridBreakdownEl.style.top = `${gridRect.top - 18}px`;
+  gridBreakdownEl.style.transform = "translateX(-50%)";
+
+  gridBreakdownEl.textContent = text;
+  gridBreakdownEl.style.opacity = "1";
+
+  clearTimeout(gridBreakdownTimer);
+  gridBreakdownTimer = setTimeout(() => {
+    gridBreakdownEl.style.opacity = "0";
+  }, 900);
+}
+
 function observeComboAndBest(linesCleared) {
   let bonus = 0;
 
@@ -52,6 +85,12 @@ function observeComboAndBest(linesCleared) {
       comboEl.style.visibility = "visible";
     } else {
       comboEl.style.visibility = "hidden";
+    }
+
+    if (linesCleared > 0) {
+      let text = `+${linesCleared * 100}`;
+      if (bonus > 0) text += ` • +${bonus}`;
+      showGridScoreBreakdown(text);
     }
 
     if (score > bestScore) {
@@ -243,7 +282,7 @@ function findSnapPosition(x, y, shape) {
   return best;
 }
 
-/* ================= DRAG (DESKTOP UNCHANGED, MOBILE FIXED) ================= */
+/* ================= DRAG (DESKTOP UNCHANGED, MOBILE NORMALIZED) ================= */
 
 let dragging = false;
 let dragClone = null;
@@ -269,12 +308,11 @@ function setupDrag(piece) {
 
     gridRect = grid.getBoundingClientRect();
 
-    // 🔒 MOBILE-ONLY SCALE NORMALIZATION
     if (e.pointerType === "touch") {
       const gameRect = document.getElementById("game").getBoundingClientRect();
       visualScale = gameRect.width / document.getElementById("game").offsetWidth;
     } else {
-      visualScale = 1; // DESKTOP: unchanged
+      visualScale = 1;
     }
 
     dragClone = piece.cloneNode(true);
@@ -292,7 +330,6 @@ document.addEventListener("pointermove", e => {
   dragClone.style.left = e.clientX - offsetX + "px";
   dragClone.style.top = e.clientY - offsetY + "px";
 
-  // 🔒 Normalize input ONLY on mobile
   const x = (e.clientX - gridRect.left - offsetX) / visualScale;
   const y = (e.clientY - gridRect.top - offsetY) / visualScale;
 

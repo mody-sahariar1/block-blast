@@ -12,7 +12,7 @@ body {
   padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
 }
 
-/* SCOREBOARD (LOCKED HEIGHT, NO REFLOW) */
+/* SCOREBOARD */
 #scoreboard {
   margin: 12px 0;
   font-size: 18px;
@@ -31,7 +31,7 @@ body {
   width: 100vw;
   height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: center; /* desktop untouched */
   justify-content: center;
   overflow: hidden;
 }
@@ -123,22 +123,13 @@ body {
 
 /* RESPONSIVE SCALE */
 @media (max-width: 480px) {
-  #game { transform: scale(0.85); }
-}
-@media (max-width: 390px) {
   #game { transform: scale(0.75); }
 }
-@media (max-width: 360px) {
-  #game { transform: scale(0.7); }
-}
 
-/* ===== MOBILE VERTICAL SAFETY FIX (OBSERVER-ONLY) ===== */
-@media (max-width: 768px) {
+/* MOBILE VISUAL OFFSET ONLY */
+@media (max-width: 480px) {
   #game-scale-wrapper {
     align-items: flex-start;
-  }
-
-  #game {
-    margin-top: 40px;
+    padding-top: 24px;
   }
 }
