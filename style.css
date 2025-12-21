@@ -131,3 +131,14 @@ body {
 @media (max-width: 360px) {
   #game { transform: scale(0.7); }
 }
+
+/* ===== MOBILE VERTICAL SAFETY FIX (OBSERVER-ONLY) ===== */
+@media (max-width: 768px) {
+  #game-scale-wrapper {
+    align-items: flex-start;
+  }
+
+  #game {
+    margin-top: 40px;
+  }
+}
