@@ -86,10 +86,8 @@ function observeComboAndBest(linesCleared) {
     combo = 0;
   }
 
-  /* ---- HARD GUARD: INTEGER SCORE ONLY ---- */
   score = Math.round(score);
 
-  /* ---- FRAME-SAFE UI UPDATES ---- */
   requestAnimationFrame(() => {
     scoreEl.textContent = `SCORE: ${score}`;
 
@@ -230,7 +228,6 @@ function clearLines() {
     cells[i].classList.remove("occupied");
   });
 
-  /* ---- INTEGER GUARANTEE ---- */
   const linesCleared = Math.floor(toClear.size / gridSize);
 
   addScore(linesCleared);
@@ -348,7 +345,7 @@ document.addEventListener("pointermove", e => {
 document.addEventListener("pointerup", () => {
   if (!dragging) return;
 
-  jsdragging = false;
+  dragging = false; // ✅ FIXED HERE
   dragClone.remove();
 
   if (currentSnap && !gameOver) {
