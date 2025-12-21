@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no"
+  />
+  <title>Block Blast – Milestone 1</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <h2>Block Blast – Milestone 1</h2>
+
+  <button id="restart">Restart</button>
+
+  <!-- SCOREBOARD (UNCHANGED STRUCTURE) -->
+  <div id="scoreboard">
+    <div id="score">SCORE: 0</div>
+    <div id="best-score">BEST: 0</div>
+    <div id="combo">🔥 COMBO x1 🔥</div>
+  </div>
+
+  <div id="game-scale-wrapper">
+    <div id="game">
+      <div id="grid-wrapper">
+        <div id="grid"></div>
+      </div>
+      <div id="tray"></div>
+    </div>
+  </div>
+
+  <!-- ✅ SCORE BREAKDOWN (OUTSIDE GAME LAYOUT) -->
+  <div id="score-breakdown"></div>
+
+  <div id="game-over-overlay" class="hidden">
+    <div class="game-over-box">
+      <h1>GAME OVER</h1>
+      <p>No space left for any piece</p>
+      <button id="restart-overlay-btn">Restart</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
